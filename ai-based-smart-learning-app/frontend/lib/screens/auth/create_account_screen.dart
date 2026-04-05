@@ -27,6 +27,36 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _obscurePassword    = true;
   bool _isLoading          = false;
 
+  bool _isConnecting = true;
+  String _connectionMessage = "Connecting...\n(First wake-up can take 30s)";
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBackendStatus();
+  }
+
+  Future<void> _checkBackendStatus() async {
+    bool isAlive = await ApiService.isBackendAlive();
+    if (!mounted) return;
+
+    if (isAlive) {
+      setState(() => _isConnecting = false);
+    } else {
+      setState(() {
+        _connectionMessage = "Server is warming up...\nPlease wait (can take up to 30s)";
+      });
+      while (!isAlive && mounted) {
+        await Future.delayed(const Duration(seconds: 3));
+        if (!mounted) break;
+        isAlive = await ApiService.isBackendAlive();
+      }
+      if (mounted) {
+        setState(() => _isConnecting = false);
+      }
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -97,16 +127,34 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
-          child: ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: _buildFormCard(context),
-              ),
-            ),
-          ),
+          child: _isConnecting
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(color: AppTheme.brandPrimary),
+                    const SizedBox(height: 24),
+                    Text(
+                      _connectionMessage,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                )
+              : ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 420),
+                      child: _buildFormCard(context),
+                    ),
+                  ),
+                ),
         ),
       ),
     );

@@ -10,8 +10,17 @@ import 'package:flutter/foundation.dart'; // For kIsWeb
 class ApiService {
   // ── Environment-based base URL ───────────────────────────────────────────
   static String get baseUrl {
-    if (kIsWeb) return 'http://127.0.0.1:8000';
-    return 'http://10.0.2.2:8000';
+    const String renderUrl = 'https://saamya-ai.onrender.com';
+
+    //to keep the option to switch to local easily:
+    const bool useLocalBackend = false; 
+
+    if (useLocalBackend) {
+      if (kIsWeb) return 'http://127.0.0.1:8000';
+      return 'http://10.0.2.2:8000';
+    }
+
+    return renderUrl;
   }
   // ─────────────────────────────────────────────────────────────────────────
 
