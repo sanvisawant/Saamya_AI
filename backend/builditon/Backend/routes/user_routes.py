@@ -46,7 +46,14 @@ def register(req: RegisterRequest):
             "name": req.name, "email": req.email,
             "password": hashed, "role": req.role, "disability": req.disability,
         }).execute()
-        u = res.data[0]
+        
+        if res.data and len(res.data) > 0:
+            u = res.data[0]
+        else:
+            # If insert didn't return the row, fetch it manually
+            fetch_res = supabase.table("users").select("*").eq("email", req.email).execute()
+            u = fetch_res.data[0]
+            
         return UserOut(**u)
 
     # ── SQLite path ──────────────────────────────────────────────────────────

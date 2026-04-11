@@ -9,35 +9,74 @@ import 'package:flutter/foundation.dart'; // For kIsWeb
 ///   - Web (Chrome, desktop) → http://127.0.0.1:8000
 class ApiService {
   // ── Environment-based base URL ───────────────────────────────────────────
+  static bool forceLocalBackend = false;
+
   static String get baseUrl {
-    const String renderUrl = 'https://saamya-ai.onrender.com';
-
-    //to keep the option to switch to local easily:
-    const bool useLocalBackend = false; 
-
-    if (useLocalBackend) {
+    if (forceLocalBackend) {
       if (kIsWeb) return 'http://127.0.0.1:8000';
       return 'http://10.0.2.2:8000';
     }
-
-    return renderUrl;
+    return 'https://saamya-ai.onrender.com';
   }
   // ─────────────────────────────────────────────────────────────────────────
 
-  static const Duration _timeout = Duration(seconds: 15);
+  static const Duration _timeout = Duration(seconds: 45);
 
   static Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
 
+  // ── Error Parsing ────────────────────────────────────────────────────────
+  static String _parseError(dynamic detail, String fallback) {
+    if (detail == null) return fallback;
+    if (detail is String) return detail;
+    if (detail is List) {
+      try {
+        return detail.map((e) {
+          if (e is Map) {
+            String field = '';
+            if (e.containsKey('loc') && e['loc'] is List && e['loc'].isNotEmpty) {
+              field = '${e['loc'].last}: ';
+            }
+            return field + (e['msg'] ?? e.toString());
+          }
+          return e.toString();
+        }).join('\n');
+      } catch (_) {
+        return detail.toString();
+      }
+    }
+    return detail.toString();
+  }
+
   // ── Health check ─────────────────────────────────────────────────────────
   static Future<bool> isBackendAlive() async {
     try {
-      final res = await http.get(Uri.parse(baseUrl)).timeout(_timeout);
-      return res.statusCode == 200;
+      // Proactively check if the DB is awake by hitting a DB endpoint
+      final dbCheckRes = await http.post(
+        Uri.parse('https://saamya-ai.onrender.com/api/users/login'),
+        headers: _headers,
+        body: jsonEncode({'email': 'ping', 'password': 'ping'}),
+      ).timeout(_timeout);
+
+      // 401 is normal (invalid login). 500 means DB is dead/paused.
+      if (dbCheckRes.statusCode == 500) {
+        throw Exception('Remote DB is asleep/dead');
+      }
+      
+      forceLocalBackend = false;
+      return true;
     } catch (_) {
-      return false;
+      // Fallback
+      forceLocalBackend = true;
+      try {
+        final localUrl = kIsWeb ? 'http://127.0.0.1:8000' : 'http://10.0.2.2:8000';
+        final res = await http.get(Uri.parse(localUrl)).timeout(const Duration(seconds: 3));
+        return res.statusCode == 200;
+      } catch (_) {
+        return false;
+      }
     }
   }
 
@@ -45,7 +84,7 @@ class ApiService {
 
   /// Register a new user. Returns the user map or throws [ApiException].
   static Future<Map<String, dynamic>> register({
-    required String name,
+    required String full_name,
     required String email,
     required String password,
     required String role,
@@ -56,7 +95,7 @@ class ApiService {
           Uri.parse('$baseUrl/api/users/register'),
           headers: _headers,
           body: jsonEncode({
-            'name': name,
+            'name': full_name,
             'email': email,
             'password': password,
             'role': role,
@@ -67,7 +106,7 @@ class ApiService {
 
     final body = jsonDecode(res.body);
     if (res.statusCode == 201) return body as Map<String, dynamic>;
-    throw ApiException(body['detail'] ?? 'Registration failed (${res.statusCode})');
+    throw ApiException(_parseError(body['detail'], 'Registration failed (${res.statusCode})'));
   }
 
   /// Login. Returns the user map or throws [ApiException].
@@ -85,7 +124,7 @@ class ApiService {
 
     final body = jsonDecode(res.body);
     if (res.statusCode == 200) return body as Map<String, dynamic>;
-    throw ApiException(body['detail'] ?? 'Login failed (${res.statusCode})');
+    throw ApiException(_parseError(body['detail'], 'Login failed (${res.statusCode})'));
   }
 
   // ── Chat ─────────────────────────────────────────────────────────────────
@@ -116,7 +155,7 @@ class ApiService {
 
     final body = jsonDecode(res.body);
     if (res.statusCode == 200) return body['reply'] as String;
-    throw ApiException(body['detail'] ?? 'Chat error (${res.statusCode})');
+    throw ApiException(_parseError(body['detail'], 'Chat error (${res.statusCode})'));
   }
 
   /// Fetch chat history for a user.
@@ -152,7 +191,7 @@ class ApiService {
 
     final body = jsonDecode(res.body);
     if (res.statusCode == 200) return body as Map<String, dynamic>;
-    throw ApiException(body['detail'] ?? 'Upload failed (${res.statusCode})');
+    throw ApiException(_parseError(body['detail'], 'Upload failed (${res.statusCode})'));
   }
 
   // ── Quiz ─────────────────────────────────────────────────────────────────

@@ -82,8 +82,19 @@ class _LoginScreenState extends State<LoginScreen> {
           return;
         }
 
-        final disabilityRaw = user['disability']?.toString().toLowerCase() ?? '';
-        final disability = disabilityRaw.split('|').first;
+        // --- SAFE EXTRACTION START ---
+        final dynamic rawDisability = user['disability'];
+        String disabilityString = 'none';
+
+        if (rawDisability is List && rawDisability.isNotEmpty) {
+          disabilityString = rawDisability[0].toString();
+        } else if (rawDisability is String) {
+          disabilityString = rawDisability;
+        }
+
+        final disability = disabilityString.split('|').first.toLowerCase();
+        // --- SAFE EXTRACTION END ---
+
         final isBlind = disability == 'visual' || disability == 'blind';
         
         Navigator.pushReplacement(
@@ -99,12 +110,12 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(content: Text(e.message), behavior: SnackBarBehavior.floating),
         );
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Could not connect to server. Is the backend running?'),
-            behavior: SnackBarBehavior.floating,
+          SnackBar(
+            content: Text('Error: $e'), 
+        behavior: SnackBarBehavior.floating,
           ),
         );
       }

@@ -80,7 +80,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     setState(() => _isLoading = true);
     try {
       final user = await ApiService.register(
-        name:       _nameController.text.trim(),
+      full_name:     _nameController.text.trim(),
         email:      _emailController.text.trim(),
         password:   _passController.text,
         role:       _selectedRole,
@@ -92,7 +92,19 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
       // Apply accessibility defaults based on disability
       if (mounted) {
-        final realDisability = (user['disability'] as String).split('|')[0];
+        // SAFE EXTRACTION: Check if it's a List or String first
+        final dynamic rawDisability = user['disability'];
+        String disabilityString = 'none';
+
+        if (rawDisability is List && rawDisability.isNotEmpty) {
+          disabilityString = rawDisability[0].toString();
+        } else if (rawDisability is String) {
+          disabilityString = rawDisability;
+        }
+
+        // Now split safely
+        final realDisability = disabilityString.split('|')[0].toLowerCase();
+
         Provider.of<AccessibilityProvider>(context, listen: false)
             .applyDefaults(realDisability);
             
@@ -106,10 +118,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         );
       }
     } on ApiException catch (e) {
-
       _showSnack(e.message);
     } catch (e) {
-      _showSnack('Could not connect to server. Is the backend running?');
+      _showSnack('Error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
