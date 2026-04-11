@@ -42,7 +42,7 @@ def register(req: RegisterRequest):
         existing = supabase.table("users").select("id").eq("email", req.email).execute()
         if existing.data:
             raise HTTPException(409, "Email already registered.")
-        res = supabase.table("users").insert({
+            res = supabase.table("users").insert({
             "name": req.name, "email": req.email,
             "password": hashed, "role": req.role, "disability": req.disability,
         }).execute()
@@ -55,6 +55,7 @@ def register(req: RegisterRequest):
             u = fetch_res.data[0]
             
         return UserOut(**u)
+
 
     # ── SQLite path ──────────────────────────────────────────────────────────
     conn = get_conn()
