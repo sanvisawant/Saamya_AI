@@ -6,7 +6,7 @@ from database.db_config import get_conn
 router = APIRouter(prefix="/api/chat", tags=["Chat Assistant"])
 
 class ChatRequest(BaseModel):
-    user_id: int = 0
+    user_id: str = "0"
     user_name: str
     message: str
     disability_mode: str

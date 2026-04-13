@@ -32,7 +32,7 @@ def report(name: str = "Student", scores: str = "50,70,90"):
 
 
 class SubmitResult(BaseModel):
-    user_id: int
+    user_id: str
     score: int
     total: int
     topic: str = "General"
@@ -55,7 +55,7 @@ def submit_result(req: SubmitResult):
 
 
 @router.get("/results/{user_id}")
-def get_results(user_id: int):
+def get_results(user_id: str):
     """Get all quiz results for a user."""
     conn = get_conn()
     rows = conn.execute(

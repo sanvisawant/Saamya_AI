@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         // --- SAFE EXTRACTION START ---
-        final dynamic rawDisability = user['disability'];
+        final dynamic rawDisability = user['disability_mode'];
         String disabilityString = 'none';
 
         if (rawDisability is List && rawDisability.isNotEmpty) {

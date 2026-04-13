@@ -23,7 +23,7 @@ class _TakeTestScreenState extends State<TakeTestScreen> {
   String? _error;
   String _topic = 'General';
 
-  int _userId = 0;
+  String _userId = '0';
 
   @override
   void initState() {

@@ -93,7 +93,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       // Apply accessibility defaults based on disability
       if (mounted) {
         // SAFE EXTRACTION: Check if it's a List or String first
-        final dynamic rawDisability = user['disability'];
+        final dynamic rawDisability = user['disability_mode'];
         String disabilityString = 'none';
 
         if (rawDisability is List && rawDisability.isNotEmpty) {

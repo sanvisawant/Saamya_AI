@@ -9,22 +9,22 @@ router = APIRouter(prefix="/api/users", tags=["Users"])
 # ── Schemas ──────────────────────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):
-    name: str
+    full_name: str
     email: str
     password: str
-    role: str = "student"       # "student" | "teacher"
-    disability: str = "none"    # "none" | "visual" | "deaf" | "voice"
+    role: str = "student"            # "student" | "teacher"
+    disability_mode: str = "none"    # "none" | "visual" | "deaf" | "voice"
 
 class LoginRequest(BaseModel):
     email: str
     password: str
 
 class UserOut(BaseModel):
-    id: int
-    name: str
+    id: str  # Handle both UUID (Supabase) and int (SQLite) as strings
+    full_name: str
     email: str
     role: str
-    disability: str
+    disability_mode: str
 
 # ── Helper ───────────────────────────────────────────────────────────────────
 
@@ -43,8 +43,8 @@ def register(req: RegisterRequest):
         if existing.data:
             raise HTTPException(409, "Email already registered.")
         res = supabase.table("users").insert({
-            "name": req.name, "email": req.email,
-            "password": hashed, "role": req.role, "disability": req.disability,
+            "full_name": req.full_name, "email": req.email,
+            "password": hashed, "role": req.role, "disability_mode": req.disability_mode,
         }).execute()
         
         if res.data and len(res.data) > 0:
@@ -60,8 +60,8 @@ def register(req: RegisterRequest):
     conn = get_conn()
     try:
         conn.execute(
-            "INSERT INTO users (name,email,password,role,disability) VALUES (?,?,?,?,?)",
-            (req.name, req.email, hashed, req.role, req.disability),
+            "INSERT INTO users (full_name,email,password,role,disability_mode) VALUES (?,?,?,?,?)",
+            (req.full_name, req.email, hashed, req.role, req.disability_mode),
         )
         conn.commit()
         row = conn.execute("SELECT * FROM users WHERE email=?", (req.email,)).fetchone()

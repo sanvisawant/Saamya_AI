@@ -40,7 +40,7 @@ class _AiChatbotState extends State<AiChatbot> {
   bool _sttAvailable    = false;
 
   // Loaded from AuthService
-  int    _userId        = 0;
+  String _userId        = '0';
   String _userName      = 'User';
   String _disabilityMode = 'none';
 
@@ -71,7 +71,7 @@ class _AiChatbotState extends State<AiChatbot> {
     final session = await AuthService.getSession();
     if (session != null) {
       setState(() {
-        _userId        = session['id'] as int;
+        _userId        = session['id'].toString();
         _userName      = session['name'] as String;
         _disabilityMode = session['disability'] as String;
       });

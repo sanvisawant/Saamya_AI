@@ -95,11 +95,11 @@ class ApiService {
           Uri.parse('$baseUrl/api/users/register'),
           headers: _headers,
           body: jsonEncode({
-            'name': full_name,
+            'full_name': full_name,
             'email': email,
             'password': password,
             'role': role,
-            'disability': disability,
+            'disability_mode': disability,
           }),
         )
         .timeout(_timeout);
@@ -131,7 +131,7 @@ class ApiService {
 
   /// Send a message to the AI and get a reply.
   static Future<String> sendChatMessage({
-    required int userId,
+    required String userId,
     required String userName,
     required String message,
     required String disabilityMode,
@@ -159,7 +159,7 @@ class ApiService {
   }
 
   /// Fetch chat history for a user.
-  static Future<List<Map<String, dynamic>>> getChatHistory(int userId) async {
+  static Future<List<Map<String, dynamic>>> getChatHistory(String userId) async {
     final res = await http
         .get(Uri.parse('$baseUrl/api/chat/history/$userId'))
         .timeout(_timeout);
@@ -208,7 +208,7 @@ class ApiService {
 
   /// Submit a quiz result to the backend.
   static Future<void> submitQuizResult({
-    required int userId,
+    required String userId,
     required int score,
     required int total,
     String topic = 'General',
@@ -228,7 +228,7 @@ class ApiService {
   }
 
   /// Fetch all quiz results for a user.
-  static Future<List<Map<String, dynamic>>> getQuizResults(int userId) async {
+  static Future<List<Map<String, dynamic>>> getQuizResults(String userId) async {
     final res = await http
         .get(Uri.parse('$baseUrl/api/quiz/results/$userId'))
         .timeout(_timeout);

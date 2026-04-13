@@ -34,13 +34,13 @@ def _init_db():
     conn = get_conn()
     conn.executescript("""
         CREATE TABLE IF NOT EXISTS users (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            name       TEXT    NOT NULL,
-            email      TEXT    UNIQUE NOT NULL,
-            password   TEXT    NOT NULL,
-            role       TEXT    NOT NULL DEFAULT 'student',
-            disability TEXT    NOT NULL DEFAULT 'none',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            full_name       TEXT    NOT NULL,
+            email           TEXT    UNIQUE NOT NULL,
+            password        TEXT    NOT NULL,
+            role            TEXT    NOT NULL DEFAULT 'student',
+            disability_mode TEXT    NOT NULL DEFAULT 'none',
+            created_at      DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         CREATE TABLE IF NOT EXISTS chat_history (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
