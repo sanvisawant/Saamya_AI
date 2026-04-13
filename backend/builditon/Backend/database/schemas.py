@@ -11,6 +11,6 @@ class UserResponse(BaseModel):
     disability_mode: str
 
 class FeedbackCreate(BaseModel):
-    user_id: int
+    user_id: str
     feedback_text: str
     rating: int

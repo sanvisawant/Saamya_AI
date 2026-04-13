@@ -57,7 +57,7 @@ def register(req: RegisterRequest):
                 u = fetch_res.data[0]
             else:
                 # Absolute fallback if Supabase completely hides the row
-                u = {"id": 0, "name": req.name, "email": req.email, "role": req.role, "disability": req.disability}
+                u = {"id": "0", "full_name": req.full_name, "email": req.email, "role": req.role, "disability_mode": req.disability_mode}
             
         return UserOut(**u)
 

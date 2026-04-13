@@ -42,7 +42,7 @@ async def chat_endpoint(req: ChatRequest):
 
 
 @router.get("/history/{user_id}", tags=["Chat Assistant"])
-def get_chat_history(user_id: int, limit: int = 20):
+def get_chat_history(user_id: str, limit: int = 20):
     """Return recent chat history for a user (newest first)."""
     conn = get_conn()
     rows = conn.execute(
