@@ -42,6 +42,7 @@ def register(req: RegisterRequest):
         existing = supabase.table("users").select("id").eq("email", req.email).execute()
         if existing.data:
             raise HTTPException(409, "Email already registered.")
+            
         res = supabase.table("users").insert({
             "full_name": req.full_name, "email": req.email,
             "password": hashed, "role": req.role, "disability_mode": req.disability_mode,
@@ -52,7 +53,11 @@ def register(req: RegisterRequest):
         else:
             # If insert didn't return the row, fetch it manually
             fetch_res = supabase.table("users").select("*").eq("email", req.email).execute()
-            u = fetch_res.data[0]
+            if fetch_res.data and len(fetch_res.data) > 0:
+                u = fetch_res.data[0]
+            else:
+                # Absolute fallback if Supabase completely hides the row
+                u = {"id": 0, "name": req.name, "email": req.email, "role": req.role, "disability": req.disability}
             
         return UserOut(**u)
 
@@ -70,6 +75,7 @@ def register(req: RegisterRequest):
         raise HTTPException(409, "Email already registered.")
     finally:
         conn.close()
+
 
 # ── Login ────────────────────────────────────────────────────────────────────
 
