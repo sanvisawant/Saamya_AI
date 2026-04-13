@@ -236,6 +236,16 @@ class AccessibilityProvider extends ChangeNotifier {
     'Your Work': 'आपका कार्य',
     '%days% Day Streak!': '%days% दिन की स्ट्रीक!',
     "Keep it up — you're on fire!": 'इसे जारी रखें — आप बहुत अच्छा कर रहे हैं!',
+    'Teacher Console': 'शिक्षक कंसोल',
+    'Overview': 'अवलोकन',
+    'Classroom': 'कक्षा',
+    'Upload': 'अपलोड',
+    'Quiz Creator': 'क्विज़ निर्माता',
+    'Total Students': 'कुल छात्र',
+    'Inclusivity Score': 'समावेशी स्कोर',
+    'Active Assignments': 'सक्रिय असाइनमेंट',
+    'Recent Content': 'हाल की सामग्री',
+    'Welcome back,': 'वापसी पर स्वागत है,',
   };
 
   String tr(String text) {

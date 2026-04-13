@@ -7,6 +7,7 @@ import '../../services/auth_service.dart';
 import 'login_screen.dart';
 import '../main_nav.dart';
 import '../student/blind_dashboard_screen.dart';
+import '../teacher/teacher_dashboard_screen.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -108,6 +109,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         Provider.of<AccessibilityProvider>(context, listen: false)
             .applyDefaults(realDisability);
             
+        final role = user['role']?.toString() ?? '';
+        if (role.toLowerCase() == 'teacher') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const TeacherDashboardScreen()),
+          );
+          return;
+        }
+
         final isBlind = realDisability == 'visual' || realDisability == 'blind';
 
         Navigator.pushReplacement(

@@ -118,7 +118,11 @@ class _AiChatbotState extends State<AiChatbot> {
 
   Future<void> _speak(String text) async {
     final a11y = Provider.of<AccessibilityProvider>(context, listen: false);
-    final langOrLoc = a11y.language == 'hi' ? 'hi-IN' : 'en-US';
+    
+    // Auto-detect Hindi characters for voice output
+    final bool hasHindi = RegExp(r'[\u0900-\u097F]').hasMatch(text);
+    final String langOrLoc = (hasHindi || a11y.language == 'hi') ? 'hi-IN' : 'en-US';
+    
     await _tts.setLanguage(langOrLoc);
     await _tts.speak(text);
   }
@@ -135,11 +139,15 @@ class _AiChatbotState extends State<AiChatbot> {
     _scrollToBottom();
 
     try {
+      final a11y = Provider.of<AccessibilityProvider>(context, listen: false);
+      final targetLang = a11y.language == 'hi' ? 'hi-IN' : 'en-IN';
+
       final reply = await ApiService.sendChatMessage(
         userId:         _userId,
         userName:       _userName,
         message:        text,
         disabilityMode: _disabilityMode,
+        targetLanguage: targetLang,
         context:        _uploadedContext,
       );
       if (mounted) {

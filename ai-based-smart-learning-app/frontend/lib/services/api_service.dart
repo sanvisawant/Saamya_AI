@@ -57,7 +57,7 @@ class ApiService {
       final dbCheckRes = await http.post(
         Uri.parse('https://saamya-ai.onrender.com/api/users/login'),
         headers: _headers,
-        body: jsonEncode({'email': 'ping', 'password': 'ping'}),
+        body: jsonEncode({'name': 'Sanvi Sawant', 'board': 'CBSE', 'mode': 'Visual Mode', 'progress': 0.85}),
       ).timeout(_timeout);
 
       // 401 is normal (invalid login). 500 means DB is dead/paused.
